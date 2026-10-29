@@ -181,6 +181,18 @@ int main(void) {
 }
 ````
 
+## Development Note & AI Disclosure
+
+This project was developed using a **Live Coding / Human-in-the-Loop** approach with **AI** assistance for code generation, boilerplate streamlining, and rapid prototyping.
+
+However, the core security model, the vault structure layout (`.cef`), the memory hygiene policies, and the structural validation logic were designed, directed, and architected entirely by the creator. **While some implementation details and initial validations may be in an early/preliminary stage, the architectural vision and threat model are strictly human-driven.**
+
+## Call for Security Audits & Stress Testing
+
+The core goal of **`libvfs`** is to provide uncompromising, zero-trust memory and storage security. **Since this code is in its early public release, we actively invite security researchers, developers, and cryptanalysts to audit, stress-test, and try to break this engine.**
+
+If you can find a memory leak (sodium_malloc bypass), an improper zeroization path (sodium_memzero), a logic flaw in atomic persistence, or a way to corrupt/spoof the `.cef2` structure, please open an Issue or submit a Security Advisory.
+
 ## License
 
 **This project is licensed under the MIT License.**
