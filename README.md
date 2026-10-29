@@ -187,11 +187,26 @@ This project was developed using a **Live Coding / Human-in-the-Loop** approach 
 
 However, the core security model, the vault structure layout (`.cef`), the memory hygiene policies, and the structural validation logic were designed, directed, and architected entirely by the creator. **While some implementation details and initial validations may be in an early/preliminary stage, the architectural vision and threat model are strictly human-driven.**
 
-## Call for Security Audits & Stress Testing
+## Call for Security Audits & The `libvfs` Breaking Challenge
 
-The core goal of **`libvfs`** is to provide uncompromising, zero-trust memory and storage security. **Since this code is in its early public release, we actively invite security researchers, developers, and cryptanalysts to audit, stress-test, and try to break this engine.**
+The core goal of `libvfs` is to provide uncompromising, zero-trust memory and storage security. With the release of **v1.0.0**, we actively invite security researchers, developers, and cryptanalysts to audit, stress-test, and attempt to break this engine.
 
-If you can find a memory leak (sodium_malloc bypass), an improper zeroization path (sodium_memzero), a logic flaw in atomic persistence, or a way to corrupt/spoof the `.cef2` structure, please open an Issue or submit a Security Advisory.
+### 🚩 The Challenge: `Challenge_vault_1.cef2`
+Included in the repository is a live test vault file: `Challenge_vault_1.cef2`. 
+
+I challenge the community to target this engine through two distinct paths:
+
+1. **The Cryptographic / Extraction Challenge:** 
+   Extract the secret payload stored inside `Challenge_vault_1.cef2` without knowing the master key. *(Successfully breaking the vault implies identifying a critical flaw in our key derivation, stream cipher execution, or header structure).*
+2. **The Memory Safety & Robustness Challenge:** 
+   Demonstrate a functional exploit in the C99 library itself — such as a `sodium_malloc` bypass, un-zeroed memory remnants (`sodium_memzero` omission), an unchecked memory allocation DoS vector, or an atomic persistence corruptor.
+
+### 🏆 Hall of Fame & Recognition
+Researchers who successfully demonstrate valid vulnerabilities or crack the challenge vault will be:
+* Permanently featured in our **`HALL_OF_FAME.md`** and release documentation.
+* Credited directly in official security advisories for the project.
+
+If you discover a vulnerability, please submit a detailed **Security Advisory** or open an Issue with a reproducible Proof-of-Concept (PoC).
 
 ## License
 
