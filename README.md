@@ -191,13 +191,13 @@ However, the core security model, the vault structure layout (`.cef`), the memor
 
 The core goal of `libvfs` is to provide uncompromising, zero-trust memory and storage security. With the release of **v1.0.0**, we actively invite security researchers, developers, and cryptanalysts to audit, stress-test, and attempt to break this engine.
 
-### 🚩 The Challenge: `Challenge_vault_1.cef2`
-Included in the repository is a live test vault file: `Challenge_vault_1.cef2`. 
+### 🚩 The Challenge: `challenge_1.cef2`
+Included in the repository is a live test vault file: `challenge_1.cef2`. 
 
 I challenge the community to target this engine through two distinct paths:
 
 1. **The Cryptographic / Extraction Challenge:** 
-   Extract the secret payload stored inside `Challenge_vault_1.cef2` without knowing the master key. *(Successfully breaking the vault implies identifying a critical flaw in our key derivation, stream cipher execution, or header structure).*
+   Extract the secret payload stored inside `challenge_1.cef2` without knowing the master key. *(Successfully breaking the vault implies identifying a critical flaw in our key derivation, stream cipher execution, or header structure).*
 2. **The Memory Safety & Robustness Challenge:** 
    Demonstrate a functional exploit in the C99 library itself — such as a `sodium_malloc` bypass, un-zeroed memory remnants (`sodium_memzero` omission), an unchecked memory allocation DoS vector, or an atomic persistence corruptor.
 
