@@ -1,0 +1,97 @@
+clang= /usr/bin/clang gcc= /usr/bin/gcc
+libsodium: 1.0.18
+libfs cflags:    libs: -lsodium 
+release compiler = clang   sanitizer/test compiler = gcc
+
+================================================================
+ 1. Library builds clean under the project release standard
+    (clang -O3 -std=c99 -Wall -Wextra -Wpedantic -Werror)
+================================================================
+  [PASS] libvfs compiles with ZERO diagnostics under -Werror
+
+================================================================
+ 1b. Library instrumented with ASan+UBSan (for the adversarial runs)
+================================================================
+libvfs/vfs_core.c: In function 'vfs_open':
+libvfs/vfs_core.c:248:9: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+  248 |         if (out_err) *out_err = VFS_ERR_ALLOC; return NULL;
+      |         ^~
+libvfs/vfs_core.c:248:48: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+  248 |         if (out_err) *out_err = VFS_ERR_ALLOC; return NULL;
+      |                                                ^~~~~~
+  [PASS] libvfs compiles under ASan+UBSan with zero diagnostics
+
+================================================================
+ 2. test_basic (happy path) under ASan+UBSan+LSan
+================================================================
+gcc: error: unrecognized command-line option '-std=c99 -g -O1 -fsanitize=address,undefined -fno-omit-frame-pointer'
+build_and_test_linux.sh: line 83: test_basic_linux: command not found
+  test_basic_linux exit: 127
+
+================================================================
+ 3. test_adversarial (full hostile harness) under ASan+UBSan+LSan
+================================================================
+test_adversarial.c: In function 'main':
+test_adversarial.c:336:33: error: 'S_IFMT' undeclared (first use in this function)
+  336 |             CHECK((st.st_mode & S_IFMT)==S_IFREG, "good.cef2 is a regular file (not a symlink) after save");
+      |                                 ^~~~~~
+test_adversarial.c:33:9: note: in definition of macro 'CHECK'
+   33 |     if (cond) { printf("  [ PASS ] " msg "\n", ##__VA_ARGS__); g_pass++; } \
+      |         ^~~~
+test_adversarial.c:336:33: note: each undeclared identifier is reported only once for each function it appears in
+  336 |             CHECK((st.st_mode & S_IFMT)==S_IFREG, "good.cef2 is a regular file (not a symlink) after save");
+      |                                 ^~~~~~
+test_adversarial.c:33:9: note: in definition of macro 'CHECK'
+   33 |     if (cond) { printf("  [ PASS ] " msg "\n", ##__VA_ARGS__); g_pass++; } \
+      |         ^~~~
+test_adversarial.c:336:42: error: 'S_IFREG' undeclared (first use in this function); did you mean 'S_ISREG'?
+  336 |             CHECK((st.st_mode & S_IFMT)==S_IFREG, "good.cef2 is a regular file (not a symlink) after save");
+      |                                          ^~~~~~~
+test_adversarial.c:33:9: note: in definition of macro 'CHECK'
+   33 |     if (cond) { printf("  [ PASS ] " msg "\n", ##__VA_ARGS__); g_pass++; } \
+      |         ^~~~
+build_and_test_linux.sh: line 83: test_adversarial_linux: command not found
+  test_adversarial_linux exit: 127
+
+================================================================
+ 4. probe_edges (within-ceiling KDF, size immutability, oversize path)
+================================================================
+gcc: error: unrecognized command-line option '-std=c99 -g -O1 -fsanitize=address,undefined -fno-omit-frame-pointer'
+build_and_test_linux.sh: line 109: ./probe_edges_linux: No such file or directory
+  probe_edges_linux exit: 127
+
+================================================================
+ 5. probe_leaks — drives error/IO/auth paths; Leaksan reports on exit
+================================================================
+gcc: error: unrecognized command-line option '-std=c99 -g -O1 -fsanitize=address,undefined -fno-omit-frame-pointer'
+build_and_test_linux.sh: line 120: ./probe_leaks_linux: No such file or directory
+  probe_leaks_linux exit: 127
+  [PASS] Leaksan emitted no leak report on the error/IO/auth paths.
+
+================================================================
+ 6. UBSan-only sweep on the raw-header fuzz surface
+================================================================
+gcc: error: unrecognized command-line option '-std=c99 -g -O1 -fsanitize=undefined -fno-omit-frame-pointer -Wall -Wextra -D_POSIX_C_SOURCE=200112L'
+  UBSan exit: 127  (non-zero => UB detected)
+  UBSan output:
+    build_and_test_linux.sh: line 137: ./test_adversarial_ubsan: No such file or directory
+
+================================================================
+ 7. sizeof(CEF2HeaderPacked) — on-disk layout check
+================================================================
+/tmp/sizeof_check.c:14:10: warning: format specifies type 'size_t' (aka 'unsigned long') but the argument has type 'unsigned int' [-Wformat]
+         4u+2u+24u+16u+24u+32u);
+         ^~~~~~~~~~~~~~~~~~~~~
+1 warning generated.
+sizeof(packed CEF2HeaderPacked) = 102 bytes
+  sum = 4 + 2 + 24 + 16 + 24 + 32 = 102
+
+================================================================
+ 8. macOS-vs-Linux layout consistency
+================================================================
+  Compare logs/sizeof.log vs logs/sizeof_macos.log.
+  [NOTE] sizes differ — the on-disk header would not be portable by byte.
+
+================================================================
+ DONE
+================================================================

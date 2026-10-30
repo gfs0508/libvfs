@@ -1,0 +1,2 @@
+packed header sizeof = 102 bytes
+SALTBYTES=16 NPUBBYTES=24 SHA256=32

@@ -1,0 +1,55 @@
+
+========== libvfs ADVERSARIAL HARNESS ==========
+  [ PASS ] runtime environment initialises (err=0)
+
+[A] NULL-pointer & bad-arg guardrails
+  [ PASS ] vfs_open(NULL path) -> NULL, BADARGS (got 1)
+  [ PASS ] vfs_open(NULL password) -> NULL, BADARGS (got 1)
+  [ PASS ] vfs_save(NULL v) -> BADARGS
+  [ PASS ] vfs_save(NULL path) -> BADARGS
+  [ PASS ] vfs_save(NULL pw) -> BADARGS
+  [ PASS ] vfs_inspect(NULL,NULL) -> BADARGS
+  [ PASS ] vfs_payload_ptr(NULL) -> NULL
+  [ PASS ] vfs_payload_size(NULL) -> 0
+  [ PASS ] vfs_destroy(NULL) no crash
+  [ PASS ] vfs_open(missing file) -> NULL, IO (got 3)
+
+[B] credentials: wrong & empty
+  [ PASS ] create good vault (128B)
+  [ PASS ] save good vault -> good.cef2 (err=0)
+  [ PASS ] reopen with wrong password -> AUTH (got 5)
+  [ PASS ] reopen with empty password -> AUTH (got 5)
+  [ PASS ] reopen with correct password -> OK
+        (payload round-trip verified)
+
+[C] header tampering & anti-DoS KDF caps
+  [ PASS ] generated hostile vault with mem=100GB
+  [ PASS ] mem=100GB rejected as HEADER_INVALID (got 10)
+  [ PASS ]   ...rejection took 0.040 ms (< 5ms, no crypto_pwhash) 
+  [ PASS ] generated hostile vault with ops=100M
+  [ PASS ] ops=100M rejected as HEADER_INVALID (got 10)
+  [ PASS ]   ...rejection took 0.018 ms (< 5ms) 
+  [ PASS ] generated vault with ops=0
+  [ PASS ] ops=0 rejected as HEADER_INVALID (got 10)
+  [ PASS ] generated vault with mem=0
+  [ PASS ] mem=0 rejected as HEADER_INVALID (got 10)
+  [ PASS ] mem=256MiB+1 (just over cap) rejected HEADER_INVALID (got 10)
+  [ PASS ]   ...rejection 0.064 ms (<5ms, no KDF, tight boundary)
+  [ PASS ] generated vault with payload_sz~SIZE_MAX
+  [ PASS ] payload_sz~SIZE_MAX fails gracefully, no crash (got 10: invalid header: KDF parameters exceed safe limits)
+
+[D] truncation, corruption, random entropy
+  [ PASS ] empty file -> IO (got 3)
+  [ PASS ] truncated header (50B) -> IO (got 3)
+  [ PASS ] bad magic 'XXXX' -> SIGNATURE (got 4)
+  [ PASS ] version_major=1 < min_compat=5 -> VERSION_MISMATCH (got 8)
+  [ PASS ] 1KB random entropy -> NOT OK, no crash (got 4: invalid or mismatched file magic signature)
+  [ PASS ] ciphertext bit-flip -> AUTH (AEAD reject, got 5)
+
+[E] I/O permissions & symlink redirection
+  [ PASS ] save into chmod000 dir -> non-OK, no crash (got 7: file write error)
+  [ PASS ] save with planted symlink at .tmp -> OK (O_EXCL defeats it, got 0)
+  [ PASS ] symlink-target file NOT clobbered by save (TOCTOU defeated)
+  [ PASS ] good.cef2 is a regular file (not a symlink) after save
+
+========== RESULT: 40 PASS / 0 FAIL ==========

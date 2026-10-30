@@ -1,0 +1,22 @@
+
+[P1] within-ceiling large KDF is accepted & bounded (ops=1000, mem=16MiB)
+  [PASS] create vault at within-ceiling KDF
+  [PASS] save within-ceiling OK (e=0)
+        save took 3981.6 ms (bounded; expensive by design at 1k/16MiB)
+  [PASS] reopen within-ceiling OK (3937.9 ms)
+
+[P2] on-disk size immutability across 3 save cycles
+  [PASS] cycle1 save
+  [PASS] cycle2 save
+  [PASS] cycle3 save
+  [PASS] file size stable across 3 cycles (got 5118 == 5118 == 5118; expect 5118)
+        expected on-disk = 102 (hdr) + 5000 (payload) + 16 (tag) = 5118; got 5118
+
+[P3] zero-ish payload (payload_size=1)
+  [PASS] save 1-byte payload
+  [PASS] reopen 1-byte payload intact
+
+[P4] oversized path argument (5000 chars) to vfs_save
+  [PASS] oversized path -> non-OK, no crash (got 1: invalid arguments supplied)
+
+==== PROBE_EDGES: 10 PASS / 0 FAIL ====
