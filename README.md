@@ -203,7 +203,7 @@ I challenge the community to target this engine through two distinct paths:
 
 ### 🏆 Hall of Fame & Recognition
 Researchers who successfully demonstrate valid vulnerabilities or crack the challenge vault will be:
-* Permanently featured in our **`HALL_OF_FAME.md`** and release documentation.
+* Permanently featured in our **`HALL OF FAME.md`** and release documentation.
 * Credited directly in official security advisories for the project.
 
 If you discover a vulnerability, please submit a detailed **Security Advisory** or open an Issue with a reproducible Proof-of-Concept (PoC).
